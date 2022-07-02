@@ -48,7 +48,9 @@ async function accessResource(req: Request, ctx: Ctx): Promise<Response> {
     const payload = await verifyToken(ctx, token);
     if (!payload) return unauthorized();
 
-    const { file } = z.object({ file: z.string() }).parse(payload);
+    const { file, name } = z
+      .object({ file: z.string(), name: z.string().optional() })
+      .parse(payload);
 
     let range = tryParseRange(req.headers);
     const onlyIf = tryParseR2Conditional(req.headers);
@@ -63,8 +65,17 @@ async function accessResource(req: Request, ctx: Ctx): Promise<Response> {
         if (!obj) throw new Error("Object missing without range");
       }
 
-      const download = ctx.url.searchParams.get("download") !== null;
-      return computeObjResponse(obj, range ? 206 : 200, range, onlyIf, download);
+      const download = ctx.url.searchParams.has("download")
+        ? name || true
+        : false;
+
+      return computeObjResponse(
+        obj,
+        range ? 206 : 200,
+        range,
+        onlyIf,
+        download
+      );
     }
 
     return notFound("GET");
