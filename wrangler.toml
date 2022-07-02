@@ -1,11 +1,21 @@
-name = "worker-typescript-template"
-type = "javascript"
-zone_id = ""
-account_id = ""
-route = ""
+name = "storage"
+account_id = "35aa5226bfa4a01778dc10d4dcf5d382"
 workers_dev = true
 
+main = "dist/worker.js"
+compatibility_date = "2022-06-01"
+
 [build]
-command = "npm install && npm run build"
-[build.upload]
-format = "service-worker"
+command = "pnpm build"
+
+[[r2_buckets]]
+binding = "bucket"
+bucket_name = "default"
+preview_bucket_name = "default-dev"
+
+# Secrets
+#
+# These should be set for production, or provided in a
+# .dev.vars file during development.
+#
+# - API_PUBLIC_KEY
