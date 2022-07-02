@@ -97,7 +97,8 @@ export function computeObjResponse(
   obj: R2Object,
   status: number,
   range?: R2Range,
-  onlyIf?: R2Conditional
+  onlyIf?: R2Conditional,
+  download = false
 ): Response {
   let body: ReadableStream | undefined;
 
@@ -111,6 +112,14 @@ export function computeObjResponse(
   }
 
   const headers = computeHeaders(obj, range);
+
+  if (download) {
+    headers.set(
+      "content-disposition",
+      `attachment; filename="${obj.key.split("/").at(-1)}"`
+    );
+  }
+
   const encodeBody = headers.has("content-encoding") ? "manual" : undefined;
 
   return new Response(body, { status, headers, encodeBody });

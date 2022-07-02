@@ -16,7 +16,7 @@ export function createRouter() {
   const router = new Router<Ctx>();
 
   router.add("GET", "/", index);
-  router.add("GET", "/resource/:token", getResource);
+  router.add("GET", "/access/:token", accessResource);
 
   return router;
 }
@@ -40,7 +40,7 @@ Request details:
   });
 }
 
-async function getResource(req: Request, ctx: Ctx): Promise<Response> {
+async function accessResource(req: Request, ctx: Ctx): Promise<Response> {
   return catchErrors(async () => {
     const { bucket } = ctx.bindings;
     const { token } = ctx.params;
@@ -63,7 +63,8 @@ async function getResource(req: Request, ctx: Ctx): Promise<Response> {
         if (!obj) throw new Error("Object missing without range");
       }
 
-      return computeObjResponse(obj, range ? 206 : 200, range, onlyIf);
+      const download = ctx.url.searchParams.get("download") !== null;
+      return computeObjResponse(obj, range ? 206 : 200, range, onlyIf, download);
     }
 
     return notFound("GET");
