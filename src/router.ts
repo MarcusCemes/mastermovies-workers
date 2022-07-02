@@ -15,12 +15,32 @@ const TOKEN_AUDIENCE = "storage.mmcf";
 export function createRouter() {
   const router = new Router<Ctx>();
 
+  router.add("GET", "/", index);
   router.add("GET", "/resource/:token", getResource);
 
   return router;
 }
 
-async function getResource(req: Request, ctx: Ctx) {
+async function index(req: Request, _ctx: Ctx): Promise<Response> {
+  const { city, colo, country, continent, region, regionCode, tlsVersion } =
+    req.cf;
+
+  const body = `MasterMovies Cloudflare Bridge
+
+Request details:
+  City:        ${city}
+  Datacenter:  ${colo}
+  Region:      ${region} (${regionCode})
+  Country:     ${country} (${continent})
+  Connection:  ${tlsVersion}`;
+
+  return new Response(body, {
+    status: 200,
+    headers: { "content-type": "text/plain; charset=utf-8" },
+  });
+}
+
+async function getResource(req: Request, ctx: Ctx): Promise<Response> {
   return catchErrors(async () => {
     const { bucket } = ctx.bindings;
     const { token } = ctx.params;
